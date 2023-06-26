@@ -3,6 +3,7 @@
 namespace Spatie\ModelStates\Tests;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -23,7 +24,73 @@ abstract class TestCase extends Orchestra
         $this->setUpDatabase();
     }
 
-    protected function getEnvironmentSetUp($app)
+    protected function setUpDatabase():void
+    {
+//        $this->createTestStateTable('test_models');
+        $this->createDefaultStateTable(self::DEFAULT_STATE_TEST_TABLE);
+//        $this->createNumericStateTable(self::DEFAULT_STATE_TEST_TABLE);
+
+//        $this->createNumericStateTable(self::NUMERIC_STATE_TEST_TABLE);
+        $this->createNumericStateTable(self::NUMERIC_STATE_TEST_TABLE);
+
+        $this->createMappedStateIdTable(self::STATE_ID_TEST_TABLE);
+
+    }
+
+    protected function createNumericStateTable(string $tableName):void
+    {
+        $this->createOrReplaceStrategy($tableName);
+//        $this->app->get('db')->connection()->getSchemaBuilder()->create('states', function (Blueprint $table) {
+//        DB::statement("
+        $this->app->get('db')->connection()->/*getSchemaBuilder()->*/statement("
+CREATE TABLE $tableName (
+    id INTEGER PRIMARY KEY,
+    state INTEGER CHECK (state > 0),
+    message linestring,
+    created_at timestamp,
+    updated_at timestamp,
+        check (cast(cast(state AS INTEGER) AS TEXT) = state)
+)
+    ;");
+
+    }
+
+    public function createMappedStateIdTable(string $tableName): void
+    {
+        $this->createOrReplaceStrategy($tableName);
+
+
+        $this->app->get('db')->connection()->/*getSchemaBuilder()->*/statement("
+CREATE TABLE $tableName (
+    id INTEGER PRIMARY KEY,
+    state_id INTEGER CHECK (state_id > 0),
+    message linestring,
+    created_at timestamp,
+    updated_at timestamp,
+        check (cast(cast(state_id AS INTEGER) AS TEXT) = state_id)
+)
+    ;");
+
+//        $this->app->get('db')->connection()->getSchemaBuilder()->create($tableName, function (Blueprint $table) {
+//            $table->increments('id');
+//            $table->integer('state_id')->nullable();
+//            $table->string('message')->nullable();
+//            $table->timestamps();
+//        });
+    }
+    public function createDefaultStateTable(string $tableName): void
+    {
+        $this->createOrReplaceStrategy($tableName);
+
+        $this->app->get('db')->connection()->getSchemaBuilder()->create($tableName, function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('state')->nullable();
+            $table->string('message')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    protected function getEnvironmentSetUp($app):void
     {
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
@@ -33,7 +100,7 @@ abstract class TestCase extends Orchestra
         ]);
     }
 
-    protected function setUpDatabase()
+    protected function createTestStateTable(string $tableName):void
     {
         $this->createOrReplaceStrategy($tableName);
 
