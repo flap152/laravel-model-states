@@ -114,6 +114,41 @@ abstract class State implements Castable, JsonSerializable
     }
 
     /**
+     * @return array<State>
+     */
+    public static function resolveStatesFromFolder(StateConfig $stateConfig): array
+    {
+        $resolvedStates = [];
+//        $stateConfig = static::config();
+
+        $reflection = new ReflectionClass(static::class);
+
+        ['dirname' => $directory] = pathinfo($reflection->getFileName());
+
+        $files = scandir($directory);
+
+        $namespace = $reflection->getNamespaceName();
+
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            ['filename' => $className] = pathinfo($file);
+
+            /** @var \Spatie\ModelStates\State|mixed $stateClass */
+            $stateClass = $namespace . '\\' . $className;
+
+            if (!is_subclass_of($stateClass, $stateConfig->baseStateClass)) {
+                continue;
+            }
+
+            $resolvedStates[$stateClass::getMorphClass()] = $stateClass;
+        }
+        return $resolvedStates;
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function getModel()
@@ -318,9 +353,38 @@ abstract class State implements Castable, JsonSerializable
                 continue;
             }
 
-            $resolvedStates[$stateClass::getMorphClass()] = $stateClass;
+        if ($stateConfig->canScanFolders() ) {
+             $resolvedStates = self::resolveStatesFromFolder($stateConfig);
         }
 
+
+
+        return $mappedStates;
+    }
+
+    protected static function assertStateMappingIsSetIfNeeded() {
+        if (! static::isFolderParsingAllowed()) {
+            throw new InvalidConfig('Folder parsing is not allowed, use explicit state mapping and/or specify'.
+                '$name property in' . static::class);
+        }
+    }
+
+    protected static function isFolderParsingAllowed():bool {
+//        return true;
+        return (//empty(static::$stateMapping) &&
+            (static::$isMappingExplicit ));
+    }
+    protected static function assertNameIsNumericIfNeeded() {
+//        throw_if((static::$isNumericField && ! (property_exists(static::class, '$name') && static::$name ?? null)), InvalidConfig::missingMappingOnisAlwaysMapped(static::class));
+
+        /** @var \Spatie\ModelStates\State|mixed $stateClass */
+        foreach ($resolvedStates as $key=>$stateClass) {
+            if (static::$isNumericField ) {
+                $name = static::makeStringNumeric($key);
+                $mappedStates[$name] = $stateClass;
+            } else
+                $mappedStates[$key] = $stateClass;
+        }
         foreach ($stateConfig->registeredStates as $stateClass) {
             $resolvedStates[$stateClass::getMorphClass()] = $stateClass;
         }

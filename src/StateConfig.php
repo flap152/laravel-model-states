@@ -18,6 +18,12 @@ class StateConfig
     /** @var string[] */
     public array $registeredStates = [];
 
+
+    /**
+     * @var false
+     */
+    private bool $canScanFolders = true;
+
     public function __construct(
         string $baseStateClass
     ) {
@@ -30,6 +36,26 @@ class StateConfig
 
         return $this;
     }
+
+//    public function mapped(bool $isMapped = true): StateConfig
+//    {
+//        $this->isMapped = $isMapped;
+//
+//        return $this;
+//    }
+
+    public function canScanFolders(): bool
+    {
+        return $this->canScanFolders;
+    }
+
+    public function cannotScan(): StateConfig
+    {
+        $this->canScanFolders = false;
+
+        return $this;
+    }
+
 
     public function allowTransition($from, string $to, ?string $transition = null): StateConfig
     {
