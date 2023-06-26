@@ -44,3 +44,19 @@ it('should register states', function () {
 
     expect($model->state->equals(AttributeStateC::class))->toBeTrue();
 })->skip(PHP_VERSION_ID < 80000, 'Not PHP 8');
+
+it('should register the states in a transition when folder is not scanned', function () {
+
+    config()->set('model-states.folder_scan', false);
+
+    $model = new TestModelWithAttributeState();
+
+    expect(AttributeStateA::config()->registeredStates)->toEqual([AttributeStateA::class, AttributeStateB::class,AttributeStateC::class, AttributeStateD::class, AttributeStateE::class]);
+    expect(AttributeStateC::config()->registeredStates)->toEqual([AttributeStateA::class, AttributeStateB::class,AttributeStateC::class, AttributeStateD::class, AttributeStateE::class]);
+
+    expect($model->state->equals(AttributeStateA::class))->toBeTrue();
+
+    $model->state->transitionTo(AttributeStateC::class);
+
+    expect($model->state->equals(AttributeStateC::class))->toBeTrue();
+})->skip(PHP_VERSION_ID < 80000, 'Not PHP 8');

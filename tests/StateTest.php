@@ -10,6 +10,7 @@ use Spatie\ModelStates\Tests\Dummy\ModelStates\StateE;
 use Spatie\ModelStates\Tests\Dummy\ModelStates\AnotherDirectory\StateF;
 use Spatie\ModelStates\Tests\Dummy\ModelStates\AnotherDirectory\StateG;
 use Spatie\ModelStates\Tests\Dummy\ModelStates\AnotherDirectory\StateH;
+use Spatie\ModelStates\Tests\Dummy\OtherModelStates\OtherModelState;
 use Spatie\ModelStates\Tests\Dummy\OtherModelStates\StateX;
 use Spatie\ModelStates\Tests\Dummy\OtherModelStates\StateY;
 use Spatie\ModelStates\Tests\Dummy\TestModel;
@@ -32,6 +33,61 @@ it('resolve state class', function () {
     expect(ModelState::resolveStateClass(StateG::getMorphClass()))->toEqual(StateG::class);
     expect(ModelState::resolveStateClass(StateH::getMorphClass()))->toEqual(StateH::class);
     expect(ModelState::resolveStateClass(StateH::getMorphClass()))->toEqual(StateH::class);
+});
+
+test('resolve state class without scanned folder', function () {
+
+    config()->set('model-states.folder_scan', false);
+
+    expect(ModelState::resolveStateClass(StateA::class))->toEqual(StateA::class);
+    expect(ModelState::resolveStateClass(StateC::class))->toEqual(StateC::class);
+    expect(ModelState::resolveStateClass(StateC::getMorphClass()))->toEqual(StateC::class);
+    expect(ModelState::resolveStateClass(StateC::$name))->toEqual(StateC::class);
+    expect(ModelState::resolveStateClass(StateD::class))->toEqual(StateD::class);
+    expect(ModelState::resolveStateClass(StateD::getMorphClass()))->toEqual(StateD::class);
+    expect(ModelState::resolveStateClass(StateD::$name))->toEqual(StateD::class);
+    expect(ModelState::resolveStateClass(StateE::class))->toEqual(StateE::class);
+    expect(ModelState::resolveStateClass(StateE::getMorphClass()))->toEqual(StateE::class);
+    expect(ModelState::resolveStateClass(StateF::getMorphClass()))->toEqual(StateF::class);
+    expect(ModelState::resolveStateClass(StateG::getMorphClass()))->toEqual(StateG::class);
+    expect(ModelState::resolveStateClass(StateG::getMorphClass()))->toEqual(StateG::class);
+    expect(ModelState::resolveStateClass(StateH::getMorphClass()))->toEqual(StateH::class);
+    expect(ModelState::resolveStateClass(StateH::getMorphClass()))->toEqual(StateH::class);
+
+    ModelState::reset();
+
+});
+
+test('a state that is not transitionned to or from will be missing from registration if folder is not scanned', function () {
+
+
+    ModelState::reset();
+    config()->set('model-states.folder_scan', false);
+    $notScannedStates = ModelState::getStateMapping();
+
+    ModelState::reset();
+    config()->set('model-states.folder_scan', true);
+    $scannedStates = ModelState::getStateMapping();
+
+
+    expect($notScannedStates)->not->toEqual($scannedStates);
+
+    expect($notScannedStates)->not->toContain(StateE::class);
+    expect($scannedStates)->toContain(StateE::class);
+
+});
+
+test('a state class cannot resolve the mapped state from different baseclass', function () {
+
+    expect(OtherModelState::resolveStateClass(StateC::getMorphClass()))->not()->toEqual(StateC::class);
+    expect(OtherModelState::resolveStateClass(StateC::$name))->not()->toEqual(StateC::class);
+    expect(OtherModelState::resolveStateClass(StateD::getMorphClass()))->not()->toEqual(StateD::class);
+    expect(OtherModelState::resolveStateClass(StateD::$name))->not()->toEqual(StateD::class);
+    expect(OtherModelState::resolveStateClass(StateE::getMorphClass()))->not()->toEqual(StateE::class);
+    expect(OtherModelState::resolveStateClass(StateG::getMorphClass()))->not()->toEqual(StateG::class);
+    expect(OtherModelState::resolveStateClass(StateG::$name))->not()->toEqual(StateG::class);
+    expect(OtherModelState::resolveStateClass(StateH::getMorphClass()))->not()->toEqual(StateH::class);
+    expect(OtherModelState::resolveStateClass(StateH::$name))->not()->toEqual(StateH::class);
 });
 
 it('transitionable states', function () {

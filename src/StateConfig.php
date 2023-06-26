@@ -28,6 +28,7 @@ class StateConfig
         string $baseStateClass
     ) {
         $this->baseStateClass = $baseStateClass;
+        $this->canScanFolders = config('model-states.folder_scan', true);
     }
 
     public function default(string $defaultStateClass): StateConfig
@@ -77,6 +78,12 @@ class StateConfig
 
         if ($transition && ! is_subclass_of($transition, Transition::class)) {
             throw InvalidConfig::doesNotExtendTransition($transition);
+        }
+
+        // Automatically register transitionned states, when folder is not scanned
+        if (! $this->canScanFolders()) {
+            $this->registerState($from);
+            $this->registerState($to);
         }
 
         $this->allowedTransitions[$this->createTransitionKey($from, $to)] = $transition;
@@ -149,10 +156,10 @@ class StateConfig
         if (!is_null($mapping) ) {
             $this->mappedStates[$mapping] = $stateClass;
         }
-        $this->registeredStates[] = $stateClass;
 
-        if (!in_array($stateClass, $this->registeredStates))
+        if (!in_array($stateClass, $this->registeredStates)){
             $this->registeredStates[] = $stateClass;
+        }
 
         return $this;
     }

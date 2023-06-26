@@ -30,6 +30,11 @@ abstract class State implements Castable, JsonSerializable
         $this->stateConfig = static::config();
     }
 
+    public static function reset()
+    {
+        static :: $stateMapping = [];
+    }
+
     public static function config(): StateConfig
     {
         $reflection = new ReflectionClass(static::class);
@@ -166,7 +171,9 @@ abstract class State implements Castable, JsonSerializable
      */
     public static function all(): Collection
     {
-        return collect(self::resolveStateMapping());
+        //resolveStateMapping is private and may not do what we want. Use the getter instead
+//        return collect(self::resolveStateMapping());
+        return collect(self::getStateMapping());
     }
 
     public function setField(string $field): self
@@ -327,63 +334,41 @@ abstract class State implements Castable, JsonSerializable
 
     private static function resolveStateMapping(): array
     {
-        $reflection = new ReflectionClass(static::class);
-
-        ['dirname' => $directory] = pathinfo($reflection->getFileName());
-
-        $files = scandir($directory);
-
-        $namespace = $reflection->getNamespaceName();
+        // MOVED to scan folder method
+//        $reflection = new ReflectionClass(static::class);
+//
+//        ['dirname' => $directory] = pathinfo($reflection->getFileName());
+//
+//        $files = scandir($directory);
+//
+//        $namespace = $reflection->getNamespaceName();
 
         $resolvedStates = [];
 
+
         $stateConfig = static::config();
 
-        foreach ($files as $file) {
-            if ($file === '.' || $file === '..') {
-                continue;
-            }
 
-            ['filename' => $className] = pathinfo($file);
+/**        foreach ($files as $file) {
+//            if ($file === '.' || $file === '..') {
+//                continue;
+//            }
+//
+//            ['filename' => $className] = pathinfo($file);
+//
+//            /** @var \Spatie\ModelStates\State|mixed $stateClass */
+//            $stateClass = $namespace . '\\' . $className;
+//
 
-            /** @var \Spatie\ModelStates\State|mixed $stateClass */
-            $stateClass = $namespace . '\\' . $className;
-
-            if (! is_subclass_of($stateClass, $stateConfig->baseStateClass)) {
-                continue;
-            }
-
+//        if ($stateConfig->canScanFolders() ) {
+        $scannedStates = [];
         if ($stateConfig->canScanFolders() ) {
-             $resolvedStates = self::resolveStatesFromFolder($stateConfig);
+            $scannedStates = self::resolveStatesFromFolder($stateConfig);
         }
-
-
-
-        return $mappedStates;
-    }
-
-    protected static function assertStateMappingIsSetIfNeeded() {
-        if (! static::isFolderParsingAllowed()) {
-            throw new InvalidConfig('Folder parsing is not allowed, use explicit state mapping and/or specify'.
-                '$name property in' . static::class);
-        }
-    }
-
-    protected static function isFolderParsingAllowed():bool {
-//        return true;
-        return (//empty(static::$stateMapping) &&
-            (static::$isMappingExplicit ));
-    }
-    protected static function assertNameIsNumericIfNeeded() {
-//        throw_if((static::$isNumericField && ! (property_exists(static::class, '$name') && static::$name ?? null)), InvalidConfig::missingMappingOnisAlwaysMapped(static::class));
 
         /** @var \Spatie\ModelStates\State|mixed $stateClass */
-        foreach ($resolvedStates as $key=>$stateClass) {
-            if (static::$isNumericField ) {
-                $name = static::makeStringNumeric($key);
-                $mappedStates[$name] = $stateClass;
-            } else
-                $mappedStates[$key] = $stateClass;
+        foreach ($scannedStates as $stateClass) {
+            $resolvedStates[$stateClass::getMorphClass()] = $stateClass;
         }
         foreach ($stateConfig->registeredStates as $stateClass) {
             $resolvedStates[$stateClass::getMorphClass()] = $stateClass;
