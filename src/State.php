@@ -21,6 +21,10 @@ abstract class State implements Castable, JsonSerializable
 
     private static array $stateMapping = [];
 
+
+//    private static bool $isNumericField = true;
+    protected static bool $isNumericField = false;
+
     /**
      * @param  \Illuminate\Database\Eloquent\Model  $model
      */
@@ -63,7 +67,34 @@ abstract class State implements Castable, JsonSerializable
 
     public static function getMorphClass(): string
     {
-        return static::$name ?? static::class;
+        //FFLLAAPP
+//        return static::$name ?? static::class;
+        //FFLLAAPP
+        $name = static::$name ?? null;
+//        $name = $name ?? static::getStateMapping()->first(fn($key, $item) => $item == $name);
+        if (is_numeric($name)) return $name;
+        return $name ?? static::class;
+    }
+
+
+
+    public static function getStoredValue(): float|int|string
+    {
+        $tt = (new(\Spatie\ModelStates\Tests\Dummy\ModelStates\NumericStates\StateL_11::class)(static::class))->getStateMapping();
+        $value = static::getMorphClass();
+//        if ($value === 'Spatie\ModelStates\Tests\Dummy\ModelStates\NumericStates\StateL_11' && static::$isMappingExplicit){
+//        if ($value === static::class && static::$isMappingExplicit){
+        if ($value === static::class && ! empty( self::$stateMapping)){
+            $value = self::getMappedValue(static::class);
+        }
+        if (static::$isNumericField) {
+            return static::makeStringNumeric($value);
+        }
+        return $value;
+    }
+    public static function makeStringNumeric($value){
+        if (is_numeric($value)) return $value;
+        return crc32($value);
     }
 
     public static function getStateMapping(): Collection

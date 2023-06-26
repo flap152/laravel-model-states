@@ -69,7 +69,8 @@ class QueryBuilderTest extends TestCase
 
         expect(0)->toEqual(
             TestModel::query()
-                ->whereNotState('state', StateC::getMorphClass())
+//                ->whereNotState('state', StateC::getMorphClass())
+                ->whereNotState('state', StateC::getStoredValue( StateC::getMorphClass()))
                 ->where('id', $model->id)
                 ->count()
         );

@@ -108,6 +108,17 @@ it('state is unserialized on fetch', function () {
     expect($model->state)->toBeInstanceOf(StateA::class);
 });
 
+test('non-sequential numeric explicit state mapping works on create', function () {
+    DB::table((new TestModel())->getTable())->insert([
+        'id' => 1,
+        'state' => StateA::class,
+    ]);
+
+    $model = TestModel::find(1);
+
+    expect($model->state)->toBeInstanceOf(StateA::class);
+});
+
 it('default state is set when none provided', function () {
     $model = (new class() extends TestModel {
         public function registerStates(): void

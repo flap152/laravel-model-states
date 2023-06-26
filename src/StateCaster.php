@@ -10,6 +10,8 @@ class StateCaster implements CastsAttributes
 {
     /** @var string|\Spatie\ModelStates\State */
     private string $baseStateClass;
+//    private bool $isNumericField = false;
+    protected static bool $isNumericField = false;
 
     public function __construct(string $baseStateClass)
     {
