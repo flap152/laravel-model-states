@@ -35,11 +35,21 @@ abstract class TestCase extends Orchestra
 
     protected function setUpDatabase()
     {
-        $this->app->get('db')->connection()->getSchemaBuilder()->create('test_models', function (Blueprint $table) {
+        $this->createOrReplaceStrategy($tableName);
+
+        $this->app->get('db')->connection()->getSchemaBuilder()->create($tableName, function (Blueprint $table) {
             $table->increments('id');
             $table->string('state')->nullable();
             $table->string('message')->nullable();
             $table->timestamps();
         });
     }
+
+    protected function createOrReplaceStrategy(string $tableName):void
+    {
+//        if (Schema::hasTable($tableName)) return;
+        Schema::dropIfExists($tableName);
+    }
+
+
 }

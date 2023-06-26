@@ -26,7 +26,8 @@ class QueryBuilderTest extends TestCase
 
         expect(1)->toEqual(
             TestModel::query()
-                ->whereState('state', StateC::getMorphClass())
+//                ->whereState('state', StateC::getMorphClass())
+                ->whereState('state', StateC::class) // should've been converted to numeric for query, maybe?
                 ->where('id', $model->id)
                 ->count()
         );
