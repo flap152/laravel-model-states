@@ -112,7 +112,13 @@ class StateConfig
             throw InvalidConfig::doesNotExtendBaseClass($stateClass, $this->baseStateClass);
         }
 
+        if (!is_null($mapping) ) {
+            $this->mappedStates[$mapping] = $stateClass;
+        }
         $this->registeredStates[] = $stateClass;
+
+        if (!in_array($stateClass, $this->registeredStates))
+            $this->registeredStates[] = $stateClass;
 
         return $this;
     }
