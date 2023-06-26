@@ -98,7 +98,7 @@ class StateConfig
         return $transitionableStates;
     }
 
-    public function registerState($stateClass): StateConfig
+    public function registerState($stateClass, $mapping = null): StateConfig
     {
         if (is_array($stateClass)) {
             foreach ($stateClass as $state) {
