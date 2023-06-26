@@ -5,6 +5,7 @@ namespace Spatie\ModelStates\Tests\Dummy\AttributeState;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\ModelStates\HasStates;
+use Spatie\ModelStates\Tests\TestCase;
 
 /**
  * @method static static create(array $extra = [])
@@ -22,11 +23,11 @@ class TestModelWithAttributeState extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'state' => AttributeState::class,
+        TestCase::STATE_FIELD_NAME => AttributeState::class,
     ];
 
     public function getTable()
     {
-        return 'test_models';
+        return TestCase::DEFAULT_STATE_TEST_TABLE ;
     }
 }

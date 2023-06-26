@@ -7,6 +7,15 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
+
+    public const NUMERIC_STATE_TEST_TABLE = 'numeric_state_field_models';
+    public const DEFAULT_STATE_TEST_TABLE = 'test_models';
+    public const STATE_ID_TEST_TABLE = 'state_id_test_models';
+    public const STATE_ID_FIELD_NAME = 'state_id';
+    public const STATE_FIELD_NAME = 'state';
+
+
+
     protected function setUp(): void
     {
         parent::setUp();

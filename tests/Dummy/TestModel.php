@@ -5,6 +5,7 @@ namespace Spatie\ModelStates\Tests\Dummy;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\ModelStates\HasStates;
 use Spatie\ModelStates\Tests\Dummy\ModelStates\ModelState;
+use Spatie\ModelStates\Tests\TestCase;
 
 /**
  * @method static static create(array $extra = [])
@@ -31,6 +32,6 @@ class TestModel extends Model
 
     public function getTable()
     {
-        return 'test_models';
+        return TestCase::DEFAULT_STATE_TEST_TABLE;
     }
 }
