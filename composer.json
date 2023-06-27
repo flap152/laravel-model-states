@@ -55,6 +55,10 @@
             "providers": [
                 "Spatie\\ModelStates\\ModelStatesServiceProvider"
             ]
+        },
+        "branch-alias": {
+            "dev-dev/main": "0.2.x-dev",
+            "dev-dev/integration": "0.3.x-dev"
         }
     },
     "minimum-stability": "dev",
