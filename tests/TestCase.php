@@ -96,6 +96,7 @@ CREATE TABLE $tableName (
         $app['config']->set('database.connections.sqlite', [
             'driver' => 'sqlite',
             'database' => ':memory:',
+//            'database' => ('C:\dev\Gits\gitlibs\laravel-model-states\identifier.sqlite'),
             'prefix' => '',
         ]);
     }

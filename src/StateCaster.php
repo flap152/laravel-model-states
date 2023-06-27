@@ -20,6 +20,9 @@ class StateCaster implements CastsAttributes
 
     public function get($model, string $key, $value, array $attributes)
     {
+        $myKey = ($model->map)[$key] ?? $key;
+        $value2 = $attributes[$myKey] ?? $value;
+        $value = $value2 ?? $value;
         if ($value === null) {
             return null;
         }
@@ -31,9 +34,11 @@ class StateCaster implements CastsAttributes
         /** @var \Spatie\ModelStates\State $state */
         $state = new $stateClassName($model);
 
-        $state->setField($key);
+//        $state->setField($key);
+        $state->setField($myKey);
 
         return $state;
+//        return [$key => $state];
     }
 
     /**
@@ -44,12 +49,13 @@ class StateCaster implements CastsAttributes
      *
      * @return string
      */
-    public function set($model, string $key, $value, array $attributes): ?string
+    public function set($model, string $key, $value, array $attributes)//: ?string
     {
         if ($value === null) {
             return null;
         }
 
+        $myKey = ($model->map)[$key] ?? $key;
         if (! is_subclass_of($value, $this->baseStateClass)) {
             $mapping = $this->getStateMapping();
 
@@ -66,10 +72,20 @@ class StateCaster implements CastsAttributes
         }
 
         if ($value instanceof $this->baseStateClass) {
-            $value->setField($key);
+//            $value->setField($key);
+            $value->setField($myKey);
         }
 
-        return $value::getMorphClass();
+//        return $value::getMorphClass();
+//        return [$key => $value::getMorphClass()];
+        if ($key !== $myKey) { // there's a field mapping
+            return [
+//            $key => $value::getStoredValue(),
+                $myKey => $value::getStoredValue(),
+            ];
+        }
+//        return $this->baseStateClass::makeStringNumericIfNeeded($value::getMorphClass());
+        return $value::getStoredValue();
     }
 
     private function getStateMapping(): Collection

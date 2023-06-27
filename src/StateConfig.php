@@ -14,7 +14,11 @@ class StateConfig
 
     /** @var string[] */
     public array $allowedTransitions = [];
-
+    /**
+     * @var true
+     */
+//    public bool $isMapped = false;
+    public array $mappedStates = [];
     /** @var string[] */
     public array $registeredStates = [];
 
@@ -153,8 +157,11 @@ class StateConfig
             throw InvalidConfig::doesNotExtendBaseClass($stateClass, $this->baseStateClass);
         }
 
-        if (!is_null($mapping) ) {
+        if (!is_null($mapping) /*&& $this->isMapped*/) {
             $this->mappedStates[$mapping] = $stateClass;
+//            if ($stateClass::$isNumeric && ! is_numeric($mapping) ) {
+//                $this->mappedStates[$mapping] = $stateClass;
+//            }
         }
 
         if (!in_array($stateClass, $this->registeredStates)){

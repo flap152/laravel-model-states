@@ -108,9 +108,10 @@ trait HasStates
         $casts = $this->getCasts();
 
         $states = [];
-
-        foreach ($casts as $field => $state) {
-            if (! is_subclass_of($state, State::class)) {
+        // the state name may have a parameter
+        foreach ($casts as $field => $stateMaybeWithParameter) {
+            $state = $this->parseCasterClass( $stateMaybeWithParameter);
+            if (!is_subclass_of($state , State::class)) {
                 continue;
             }
 

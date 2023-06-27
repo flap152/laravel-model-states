@@ -181,6 +181,19 @@ it('get states for', function () {
             StateH::getMorphClass(),
         ],
     )->toEqual($states->toArray());
+
+    expect($states->toArray())->toEqual([
+//        'state' => [
+        0 => 'Spatie\ModelStates\Tests\Dummy\ModelStates\StateA',
+        1 => 'Spatie\ModelStates\Tests\Dummy\ModelStates\StateB',
+        2 => 'C',
+        3 => 4,
+        4 => 5,
+        5 => 'Spatie\ModelStates\Tests\Dummy\ModelStates\AnotherDirectory\StateF',
+        6 => 'G',
+        7 => 8,
+//    ],
+    ]);
 });
 
 it('get default states', function () {

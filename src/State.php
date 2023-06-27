@@ -80,10 +80,7 @@ abstract class State implements Castable, JsonSerializable
 
     public static function getStoredValue(): float|int|string
     {
-        $tt = (new(\Spatie\ModelStates\Tests\Dummy\ModelStates\NumericStates\StateL_11::class)(static::class))->getStateMapping();
         $value = static::getMorphClass();
-//        if ($value === 'Spatie\ModelStates\Tests\Dummy\ModelStates\NumericStates\StateL_11' && static::$isMappingExplicit){
-//        if ($value === static::class && static::$isMappingExplicit){
         if ($value === static::class && ! empty( self::$stateMapping)){
             $value = self::getMappedValue(static::class);
         }
@@ -92,9 +89,19 @@ abstract class State implements Castable, JsonSerializable
         }
         return $value;
     }
-    public static function makeStringNumeric($value){
+    public static function makeStringNumeric($value)
+    {
         if (is_numeric($value)) return $value;
         return crc32($value);
+    }
+
+    public static function getMappedValue($class)
+    {
+//        $coll = self::getStateMapping();
+        $coll = collect( static::config()->mappedStates);
+        $f = $coll->filter(fn( $item) => $item == $class);
+        $g = /*collect*/($f?->keys())?->sort()->first() ?? $class;
+        return $g;
     }
 
     public static function getStateMapping(): Collection
@@ -116,13 +123,18 @@ abstract class State implements Castable, JsonSerializable
             return get_class($state);
         }
 
-        foreach (static::getStateMapping() as $stateClass) {
+        foreach (static::getStateMapping() as $key => $stateClass) {
             if (! class_exists($stateClass)) {
                 continue;
             }
 
             // Loose comparison is needed here in order to support non-string values,
             // Laravel casts their database value automatically to strings if we didn't specify the fields in `$casts`.
+            if ($key == $state) {
+                return $stateClass;
+            }
+
+
             $name = $stateClass::getMorphClass();
 
             if ($name == $state) {
@@ -378,6 +390,8 @@ abstract class State implements Castable, JsonSerializable
 
 
         $stateConfig = static::config();
+        $mappedStates = $stateConfig->mappedStates;
+
 
 
 /**        foreach ($files as $file) {
@@ -399,12 +413,12 @@ abstract class State implements Castable, JsonSerializable
 
         /** @var \Spatie\ModelStates\State|mixed $stateClass */
         foreach ($scannedStates as $stateClass) {
-            $resolvedStates[$stateClass::getMorphClass()] = $stateClass;
+            $mappedStates[$stateClass::getMorphClass()] = $stateClass;
         }
         foreach ($stateConfig->registeredStates as $stateClass) {
-            $resolvedStates[$stateClass::getMorphClass()] = $stateClass;
+            $mappedStates[$stateClass::getMorphClass()] = $stateClass;
         }
 
-        return $resolvedStates;
+        return $mappedStates;
     }
 }
